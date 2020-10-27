@@ -109,6 +109,13 @@ nano /etc/apache2/conf-available/httpoxy.conf
 a2enconf httpoxy
 systemctl restart apache2
 
+cd /usr/local/bin
+wget https://dl.eff.org/certbot-auto
+chmod a+x certbot-auto
+./certbot-auto --install-only
+
+
+
 
 
 
