@@ -161,6 +161,8 @@ mkdir -p /etc/ssl/private/
 openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -keyout /etc/ssl/private/pure-ftpd.pem -out /etc/ssl/private/pure-ftpd.pem
 chmod 600 /etc/ssl/private/pure-ftpd.pem
 systemctl restart pure-ftpd-mysql
+
+nano /etc/fstab
 -change
 [UUID=45576b38-39e8-4994-b8c1-ea4870e2e614 / ext4 errors=remount-ro,usrjquota=quota.user,grpjquota=quota.group,jqfmt=vfsv0 0 1]
 mount -o remount /
