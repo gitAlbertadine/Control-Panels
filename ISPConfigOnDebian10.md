@@ -28,7 +28,8 @@ nano /etc/hosts
 192.168.1.100   server1.example.com     server1]
 
 nano /etc/hostname
-[server1]
+-add
+[server1.ispconfig.ml]
 systemctl reboot
 hostname -f
 [server1.example.com]
