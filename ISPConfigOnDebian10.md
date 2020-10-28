@@ -325,6 +325,14 @@ nano /etc/apache2/conf-enabled/roundcube.conf
 Alias /webmail /var/lib/roundcube]
 systemctl reload apache2
 
+cd /tmp
+wget http://www.ispconfig.org/downloads/ISPConfig-3-stable.tar.gz
+tar xfz ISPConfig-3-stable.tar.gz
+cd ispconfig3_install/install/
+php -q install.php
+-voir
+https://www.howtoforge.com/perfect-server-debian-10-buster-apache-bind-dovecot-ispconfig-3-1/
+
 
 
 
