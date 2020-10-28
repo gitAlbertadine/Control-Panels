@@ -118,7 +118,7 @@ chmod a+x certbot-auto
 apt-get install mailman
 -en>ok
 newlist mailman
--listadmin@example.com
+-listadmin@ispconfig.ml
 -pass
 -enter
 
