@@ -114,6 +114,219 @@ wget https://dl.eff.org/certbot-auto
 chmod a+x certbot-auto
 ./certbot-auto --install-only
 
+apt-get install mailman
+-en>ok
+newlist mailman
+-listadmin@example.com
+-pass
+-enter
+
+nano /etc/aliases
+-add
+[## mailman mailing list
+mailman:              "|/var/lib/mailman/mail/mailman post mailman"
+mailman-admin:        "|/var/lib/mailman/mail/mailman admin mailman"
+mailman-bounces:      "|/var/lib/mailman/mail/mailman bounces mailman"
+mailman-confirm:      "|/var/lib/mailman/mail/mailman confirm mailman"
+mailman-join:         "|/var/lib/mailman/mail/mailman join mailman"
+mailman-leave:        "|/var/lib/mailman/mail/mailman leave mailman"
+mailman-owner:        "|/var/lib/mailman/mail/mailman owner mailman"
+mailman-request:      "|/var/lib/mailman/mail/mailman request mailman"
+mailman-subscribe:    "|/var/lib/mailman/mail/mailman subscribe mailman"
+mailman-unsubscribe:  "|/var/lib/mailman/mail/mailman unsubscribe mailman"]
+
+newaliases
+systemctl restart postfix
+ln -s /etc/mailman/apache.conf /etc/apache2/conf-enabled/mailman.conf
+systemctl restart apache2
+systemctl restart mailman
+
+-access the Mailman admin interface for a list at
+http://server1.example.com/cgi-bin/mailman/admin/
+http://server1.example.com/cgi-bin/mailman/listinfo/
+http://server1.example.com/pipermail
+
+apt-get install pure-ftpd-common pure-ftpd-mysql quota quotatool
+openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 2048
+nano /etc/default/pure-ftpd-common
+[[...]
+STANDALONE_OR_INETD=standalone
+[...]
+VIRTUALCHROOT=true
+[...]]
+
+echo 1 > /etc/pure-ftpd/conf/TLS
+mkdir -p /etc/ssl/private/
+openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -keyout /etc/ssl/private/pure-ftpd.pem -out /etc/ssl/private/pure-ftpd.pem
+chmod 600 /etc/ssl/private/pure-ftpd.pem
+systemctl restart pure-ftpd-mysql
+-change
+[UUID=45576b38-39e8-4994-b8c1-ea4870e2e614 / ext4 errors=remount-ro,usrjquota=quota.user,grpjquota=quota.group,jqfmt=vfsv0 0 1]
+mount -o remount /
+quotacheck -avugm
+quotaon -avug
+
+apt-get install bind9 dnsutils
+apt-get install haveged
+
+apt-get install webalizer awstats geoip-database libclass-dbi-mysql-perl libtimedate-perl
+nano /etc/cron.d/awstats
+-comment out *
+
+apt-get install build-essential autoconf automake libtool flex bison debhelper binutils
+
+cd /tmp
+wget http://olivier.sessink.nl/jailkit/jailkit-2.20.tar.gz
+tar xvfz jailkit-2.20.tar.gz
+cd jailkit-2.20
+echo 5 > debian/compat
+./debian/rules binary
+
+cd ..
+dpkg -i jailkit_2.20-1_*.deb
+rm -rf jailkit-2.20*
+
+apt-get install fail2ban
+nano /etc/fail2ban/jail.local
+-add
+[[pure-ftpd]
+enabled = true
+port = ftp
+filter = pure-ftpd
+logpath = /var/log/syslog
+maxretry = 3
+
+[dovecot]
+enabled = true
+filter = dovecot
+logpath = /var/log/mail.log
+maxretry = 5
+
+[postfix-sasl]
+enabled = true
+port = smtp
+filter = postfix[mode=auth]
+logpath = /var/log/mail.log
+maxretry = 3]
+
+systemctl restart fail2ban
+apt-get install ufw
+
+mkdir /usr/share/phpmyadmin
+mkdir /etc/phpmyadmin
+mkdir -p /var/lib/phpmyadmin/tmp
+chown -R www-data:www-data /var/lib/phpmyadmin
+touch /etc/phpmyadmin/htpasswd.setup
+
+cd /tmp
+wget https://files.phpmyadmin.net/phpMyAdmin/4.9.0.1/phpMyAdmin-4.9.0.1-all-languages.tar.gz
+tar xfz phpMyAdmin-4.9.0.1-all-languages.tar.gz
+mv phpMyAdmin-4.9.0.1-all-languages/* /usr/share/phpmyadmin/
+rm phpMyAdmin-4.9.0.1-all-languages.tar.gz
+rm -rf phpMyAdmin-4.9.0.1-all-languages
+
+cp /usr/share/phpmyadmin/config.sample.inc.php  /usr/share/phpmyadmin/config.inc.php
+nano /usr/share/phpmyadmin/config.inc.php
+[$cfg['blowfish_secret'] = 'bD3e6wva9fnd93jVsb7SDgeiBCd452Dh';]
+-add
+$cfg['TempDir'] = '/var/lib/phpmyadmin/tmp';
+
+nano /etc/apache2/conf-available/phpmyadmin.conf
+-add
+[# phpMyAdmin default Apache configuration
+
+Alias /phpmyadmin /usr/share/phpmyadmin
+
+<Directory /usr/share/phpmyadmin>
+ Options FollowSymLinks
+ DirectoryIndex index.php
+
+ <IfModule mod_php7.c>
+ AddType application/x-httpd-php .php
+
+ php_flag magic_quotes_gpc Off
+ php_flag track_vars On
+ php_flag register_globals Off
+ php_value include_path .
+ </IfModule>
+
+</Directory>
+
+# Authorize for setup
+<Directory /usr/share/phpmyadmin/setup>
+ <IfModule mod_authn_file.c>
+ AuthType Basic
+ AuthName "phpMyAdmin Setup"
+ AuthUserFile /etc/phpmyadmin/htpasswd.setup
+ </IfModule>
+ Require valid-user
+</Directory>
+
+# Disallow web access to directories that don't need it
+<Directory /usr/share/phpmyadmin/libraries>
+ Order Deny,Allow
+ Deny from All
+</Directory>
+<Directory /usr/share/phpmyadmin/setup/lib>
+ Order Deny,Allow
+ Deny from All
+</Directory> ]
+
+a2enconf phpmyadmin
+systemctl restart apache2
+mysql -u root -p
+CREATE DATABASE phpmyadmin;
+CREATE USER 'pma'@'localhost' IDENTIFIED BY 'mypassword';
+GRANT ALL PRIVILEGES ON phpmyadmin.* TO 'pma'@'localhost' IDENTIFIED BY 'mypassword' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EXIT;
+
+mysql -u root -p phpmyadmin < /usr/share/phpmyadmin/sql/create_tables.sql
+nano /usr/share/phpmyadmin/config.inc.php
+-edit+password
+[/* User used to manipulate with storage */
+$cfg['Servers'][$i]['controlhost'] = 'localhost';
+$cfg['Servers'][$i]['controlport'] = '';
+$cfg['Servers'][$i]['controluser'] = 'pma';
+$cfg['Servers'][$i]['controlpass'] = 'mypassword';
+
+/* Storage database and tables */
+$cfg['Servers'][$i]['pmadb'] = 'phpmyadmin';
+$cfg['Servers'][$i]['bookmarktable'] = 'pma__bookmark';
+$cfg['Servers'][$i]['relation'] = 'pma__relation';
+$cfg['Servers'][$i]['table_info'] = 'pma__table_info';
+$cfg['Servers'][$i]['table_coords'] = 'pma__table_coords';
+$cfg['Servers'][$i]['pdf_pages'] = 'pma__pdf_pages';
+$cfg['Servers'][$i]['column_info'] = 'pma__column_info';
+$cfg['Servers'][$i]['history'] = 'pma__history';
+$cfg['Servers'][$i]['table_uiprefs'] = 'pma__table_uiprefs';
+$cfg['Servers'][$i]['tracking'] = 'pma__tracking';
+$cfg['Servers'][$i]['userconfig'] = 'pma__userconfig';
+$cfg['Servers'][$i]['recent'] = 'pma__recent';
+$cfg['Servers'][$i]['favorite'] = 'pma__favorite';
+$cfg['Servers'][$i]['users'] = 'pma__users';
+$cfg['Servers'][$i]['usergroups'] = 'pma__usergroups';
+$cfg['Servers'][$i]['navigationhiding'] = 'pma__navigationhiding';
+$cfg['Servers'][$i]['savedsearches'] = 'pma__savedsearches';
+$cfg['Servers'][$i]['central_columns'] = 'pma__central_columns';
+$cfg['Servers'][$i]['designer_settings'] = 'pma__designer_settings';
+$cfg['Servers'][$i]['export_templates'] = 'pma__export_templates';]
+
+echo "CREATE DATABASE roundcube;" | mysql --defaults-file=/etc/mysql/debian.cnf
+apt-get install roundcube roundcube-core roundcube-mysql roundcube-plugins
+yes>pass>ok
+nano /etc/roundcube/config.inc.php
+-edit
+[$config['default_host'] = 'localhost';
+$config['smtp_server'] = 'localhost';]
+nano /etc/apache2/conf-enabled/roundcube.conf
+-add at the beginning
+[Alias /roundcube /var/lib/roundcube
+Alias /webmail /var/lib/roundcube]
+systemctl reload apache2
+
+
+
 
 
 
