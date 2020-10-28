@@ -29,7 +29,7 @@ nano /etc/hosts
 
 nano /etc/hostname
 -add
-[server1.ispconfig.ml]
+[server1]
 systemctl reboot
 hostname -f
 [server1.example.com]
