@@ -31,5 +31,11 @@ sudo mysql_secure_installation
   [[password
   check override]
 ```
+## Create a virtual host
+```
+Create Virtual Server>wordpreact.com
+add A record for mail,admin,webmail
+Server configuration > SSL Certificate
+```
  
 
