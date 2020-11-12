@@ -18,5 +18,9 @@ sudo /bin/sh install.sh
 ```
 vi /etc/hostname
     box.wordpreact.com
+reboot
+-browser
+https://box.wordpreact.com:10000
+
 ```
 
