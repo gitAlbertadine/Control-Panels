@@ -36,6 +36,8 @@ sudo mysql_secure_installation
 Create Virtual Server>wordpreact.com
 add A record for mail,admin,webmail
 Server configuration > SSL Certificate
+ vi  /var/named/wordpreact.com.hosts
+ uncomment line15?
 ```
  
 
