@@ -23,9 +23,13 @@ reboot
 https://box.wordpreact.com:10000
 
 ```
-## first setup
+## Post-Installation Wizard
 ```
 yum -y install clamav-data.noarch
 systemctl enable --now clamd@scan
+sudo mysql_secure_installation
+  [[password
+  check override]
 ```
+ 
 
