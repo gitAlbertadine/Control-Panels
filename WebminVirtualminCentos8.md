@@ -8,5 +8,9 @@ rpm -ivh webmin-1.960-1.noarch.rpm
 yum -y install net-tools
 netstat -ant | grep 10000
 ps -ef | grep webmin
-
 ```  
+## Install Virtualmin
+```
+wget http://software.virtualmin.com/gpl/scripts/install.sh
+sudo /bin/sh install.sh
+```
