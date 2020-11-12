@@ -23,4 +23,9 @@ reboot
 https://box.wordpreact.com:10000
 
 ```
+## first setup
+```
+yum -y install clamav-data.noarch
+systemctl enable --now clamd@scan
+```
 
