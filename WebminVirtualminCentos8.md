@@ -39,5 +39,6 @@ Server configuration > SSL Certificate
  vi  /var/named/wordpreact.com.hosts
  uncomment line15?
 ```
+yum install php-pecl-zip
  
 
