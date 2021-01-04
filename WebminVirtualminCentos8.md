@@ -1,4 +1,4 @@
-## Install Webmin
+## Install Webmin on centos8
 ```
 nano /etc/selinux/config
     SELINUX=disabled
@@ -8,7 +8,11 @@ rpm -ivh webmin-1.960-1.noarch.rpm
 yum -y install net-tools
 netstat -ant | grep 10000
 ps -ef | grep webmin
-```  
+``` 
+## Install webmin+debian10 on contabo
+```
+Install webmin+debian10 on contabo
+```
 ## Install Virtualmin
 ```
 wget http://software.virtualmin.com/gpl/scripts/install.sh
